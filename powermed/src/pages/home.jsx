@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink, Link } from 'react-router-dom';
 import '../styles/home.css';
 import logoImage from '../assets/images/logo.png';
 import productImage1 from '../assets/images/c1.png';
@@ -149,13 +150,19 @@ const Home = () => {
           </div>
         </div>
         <nav className="header-nav">
-          <a href="/" className="nav-link active">Home</a>
-          <a href="/products" className="nav-link">
+          <NavLink to="/" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            Home
+          </NavLink>
+          <NavLink to="/products" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
             Products
             <span className="dropdown-arrow">▼</span>
-          </a>
-          <a href="/about" className="nav-link">About Us</a>
-          <a href="/contact" className="nav-link">Contact Us</a>
+          </NavLink>
+          <NavLink to="/about" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            About Us
+          </NavLink>
+          <NavLink to="/contact" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            Contact Us
+          </NavLink>
         </nav>
       </header>
 
@@ -265,7 +272,7 @@ const Home = () => {
         <div className="products-section">
           <div className="products-header">
             <h2 className="products-title">Our Products</h2>
-            <a href="/products" className="view-all-link">View All</a>
+            <Link to="/products" className="view-all-link">View All</Link>
           </div>
           
           <div className="products-content">

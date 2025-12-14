@@ -25,7 +25,12 @@
   align-items: center;
   padding: 1rem 3rem;
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  margin-bottom: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
 }
 
 .header-left {
@@ -95,6 +100,8 @@
 /* Main Content */
 .main-content {
   flex: 1;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 /* Hero Section - First Body Div */
@@ -102,6 +109,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 750px;
   padding: 4rem 3rem;
   max-width: 1400px;
   margin: 0 auto;
@@ -1117,6 +1125,19 @@
   .questions-title {
     font-size: 2rem;
   }
+
+  .products-section {
+    padding: 3rem 2rem;
+  }
+
+  .products-content {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .products-display {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1145,9 +1166,46 @@
     height: 400px;
   }
 
+  .products-section {
+    padding: 2rem 1rem;
+  }
+
+  .products-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .products-title {
+    font-size: 2rem;
+  }
+
+  .products-content {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .products-display {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
   .footer-content {
     flex-direction: column;
     gap: 2rem;
+  }
+
+  .footer-right {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .footer-slogan {
+    font-size: 1.5rem;
+  }
+
+  .footer-contact-title {
+    font-size: 1.1rem;
   }
 
   .features-section {
