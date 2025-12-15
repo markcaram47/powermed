@@ -66,7 +66,8 @@ const Home = () => {
     'Sexual Wellness Peptides',
     'Fat Burner Injectables (Not Peptides)',
     'Hormones & Growth Factors (Not Peptides)',
-    'Vitamins, Cofactors & Others'
+    'Vitamins, Cofactors & Others',
+    'Injections'
   ];
 
   // Sample products for each category (placeholder data)
