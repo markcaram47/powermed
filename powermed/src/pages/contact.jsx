@@ -2,6 +2,11 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import '../styles/home.css';
 import logoImage from '../assets/images/logo.png';
+import footerLogoImage from '../assets/images/footer_lg.png';
+import locIcon from '../assets/images/footer_icons/loc.png';
+import mailIcon from '../assets/images/footer_icons/mail.png';
+import callIcon from '../assets/images/footer_icons/call.png';
+import socialsImage from '../assets/images/footer_icons/socials.png';
 
 const Contact = () => {
   return (
@@ -57,29 +62,28 @@ const Contact = () => {
             <div className="footer-contact">
               <h3 className="footer-contact-title">Reach out to us</h3>
               <div className="footer-contact-item">
-                <span className="footer-icon">📍</span>
+                <img src={locIcon} alt="Location" className="footer-icon" />
                 <p>Add: 11th Avenue Bonifacio Global City, Taguig</p>
               </div>
               <div className="footer-contact-item">
-                <span className="footer-icon">✉️</span>
+                <img src={mailIcon} alt="Email" className="footer-icon" />
                 <p>powermed.ph@gmail.com</p>
               </div>
               <div className="footer-contact-item">
-                <span className="footer-icon">📞</span>
+                <img src={callIcon} alt="Phone" className="footer-icon" />
                 <p>Phone: 0917 708 3801</p>
               </div>
               <div className="footer-social">
-                <span className="social-icon">f</span>
-                <span className="social-icon">📷</span>
-                <span className="social-icon">🎵</span>
-                <span className="social-icon">▶️</span>
-                <span className="social-icon">P</span>
+                <img src={socialsImage} alt="Social Media" className="footer-social-image" />
               </div>
             </div>
             
             <div className="footer-logo">
-              <div className="footer-logo-icon">+</div>
-              <p className="footer-logo-text">PowerMed</p>
+              <img 
+                src={footerLogoImage} 
+                alt="PowerMed Logo" 
+                className="footer-logo-image"
+              />
             </div>
           </div>
         </div>

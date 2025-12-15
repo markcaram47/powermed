@@ -32,7 +32,8 @@
 .category-banner-left {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   position: relative;
   z-index: 3;
 }
@@ -40,9 +41,11 @@
 .category-banner-title {
   font-size: 3rem;
   font-weight: bold;
+  font-family: 'Outfit', sans-serif;
   color: #047377;
   margin: 0;
   line-height: 1.2;
+  text-align: left;
 }
 
 /* Product Item Cards (for category page) */
