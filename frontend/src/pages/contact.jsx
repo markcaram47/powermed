@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../styles/home.css';
 import '../styles/contact.css';
 import logoImage from '../assets/images/logo.png';
@@ -18,6 +18,12 @@ import rYtIcon from '../assets/images/contact/r_yt.png';
 import rPinIcon from '../assets/images/contact/r_pin.png';
 
 const Contact = () => {
+  const navigate = useNavigate();
+
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    navigate('/admin');
+  };
   return (
     <div className="home-container">
       {/* Header */}
@@ -28,6 +34,8 @@ const Contact = () => {
               src={logoImage} 
               alt="PowerMed Logo" 
               className="logo"
+              onClick={handleLogoClick}
+              style={{ cursor: 'pointer' }}
             />
           </div>
         </div>

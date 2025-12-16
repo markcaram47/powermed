@@ -15,9 +15,11 @@ const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Array of 9 categories with line breaks (for carousel)
-  const categories = [
+  // Array of 9 categories with line breaks (for carousel) - fallback if API data not available
+  const carouselCategories = [
     {
       line1: 'Weight Management &',
       line2: 'Metabolic Support Peptides'
@@ -56,19 +58,37 @@ const Home = () => {
     }
   ];
 
-  // Full category names for the products section
-  const categoryNames = [
-    'Weight Management & Metabolic Support Peptides',
-    'Regenerative, Repair & Anti-Aging Peptides',
-    'Growth Hormone–Modulating Peptides',
-    'Cognitive, Mood & Stress Support Peptides',
-    'Skin, Beauty & Cosmetic Peptides',
-    'Sexual Wellness Peptides',
-    'Fat Burner Injectables (Not Peptides)',
-    'Hormones & Growth Factors (Not Peptides)',
-    'Vitamins, Cofactors & Others',
-    'Injections'
-  ];
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await fetch('http://localhost:5001/api/categories');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Categories API response:', data);
+        
+        if (data.success && data.data) {
+          console.log('Setting categories:', data.data);
+          setCategories(data.data);
+        } else {
+          console.error('Error fetching categories - invalid response:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Keep empty array on error so UI shows "No categories available"
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Sample products for each category (placeholder data)
   const categoryProducts = [
@@ -110,8 +130,49 @@ const Home = () => {
     );
   };
 
-  // Get current category based on currentImageIndex
-  const currentCategory = categories[currentImageIndex];
+  // Get current category based on currentImageIndex - use fetched categories or fallback
+  const getCurrentCategory = () => {
+    // Check if categories are loaded and the index is valid
+    if (categories.length > 0 && categories[currentImageIndex] && categories[currentImageIndex].name) {
+      // Split category name for carousel display (simple split at '&' or take first part)
+      const name = categories[currentImageIndex].name;
+      if (name && typeof name === 'string') {
+        const parts = name.split(' & ');
+        if (parts.length > 1) {
+          return {
+            line1: parts[0] + ' &',
+            line2: parts.slice(1).join(' & ')
+          };
+        }
+        // Try splitting at other common separators
+        const dashSplit = name.split('–');
+        if (dashSplit.length > 1) {
+          return {
+            line1: dashSplit[0] + '–',
+            line2: dashSplit.slice(1).join('–')
+          };
+        }
+        // If no good split point, try to split in middle
+        const midPoint = Math.ceil(name.length / 2);
+        const spaceIndex = name.lastIndexOf(' ', midPoint);
+        if (spaceIndex > 0) {
+          return {
+            line1: name.substring(0, spaceIndex),
+            line2: name.substring(spaceIndex + 1)
+          };
+        }
+        return {
+          line1: name,
+          line2: ''
+        };
+      }
+    }
+    // Fallback to carouselCategories if categories haven't loaded yet
+    const fallbackIndex = currentImageIndex < carouselCategories.length ? currentImageIndex : 0;
+    return carouselCategories[fallbackIndex] || { line1: '', line2: '' };
+  };
+  
+  const currentCategory = getCurrentCategory();
 
   // Testimonials/Reviews data
   const testimonials = [
@@ -283,19 +344,25 @@ const Home = () => {
           
           <div className="products-content">
             <div className="products-categories">
-              {categoryNames.map((category, index) => (
-                <div
-                  key={index}
-                  className={`category-item ${selectedCategory === index ? 'active' : ''}`}
-                  onClick={() => setSelectedCategory(index)}
-                >
-                  {category}
-                </div>
-              ))}
+              {loadingCategories ? (
+                <div className="loading-categories">Loading categories...</div>
+              ) : categories.length > 0 ? (
+                categories.map((category, index) => (
+                  <div
+                    key={category._id || index}
+                    className={`category-item ${selectedCategory === index ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(index)}
+                  >
+                    {category.name}
+                  </div>
+                ))
+              ) : (
+                <div className="no-categories">No categories available</div>
+              )}
             </div>
             
             <div className="products-display">
-              {selectedCategory !== null && categoryProducts[selectedCategory] ? (
+              {selectedCategory !== null && categories[selectedCategory] && categoryProducts[selectedCategory] ? (
                 categoryProducts[selectedCategory].map((product, index) => (
                   <div key={index} className="product-card">
                     <div className="product-bubble">

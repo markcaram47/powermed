@@ -6,6 +6,7 @@ import Products from './pages/products';
 import ProductsCategory from './pages/products_category';
 import About from './pages/about';
 import Contact from './pages/contact';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/products/:categoryId" element={<ProductsCategory />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
       </div>
     </Router>

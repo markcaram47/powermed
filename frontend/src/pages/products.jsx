@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import '../styles/home.css';
 import '../styles/products.css';
@@ -11,6 +11,39 @@ import callIcon from '../assets/images/footer_icons/call.png';
 import socialsImage from '../assets/images/footer_icons/socials.png';
 
 const Products = () => {
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await fetch('http://localhost:5001/api/categories');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Categories API response:', data);
+        
+        if (data.success && data.data) {
+          console.log('Setting categories:', data.data);
+          setCategories(data.data);
+        } else {
+          console.error('Error fetching categories - invalid response:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
   return (
     <div className="home-container">
       {/* Header */}
@@ -70,110 +103,57 @@ const Products = () => {
 
           {/* Info Text */}
           <div className="products-info-text">
-            <p className="products-info-line1">Showing 1-10 item(s)</p>
+            <p className="products-info-line1">
+              Showing {loadingCategories ? '...' : `1-${categories.length}`} item(s)
+            </p>
             <p className="products-info-line2">Below is the list of our available PowerBath.</p>
           </div>
 
           {/* Categories Grid */}
           <div className="products-categories-grid">
-            <Link to="/products/weight-management" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Weight Management & Metabolic Support Peptides"
-                  className="category-image"
-                />
+            {loadingCategories ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666666' }}>
+                Loading categories...
               </div>
-              <h3 className="category-name">Weight Management & Metabolic Support Peptides</h3>
-            </Link>
-
-            <Link to="/products/regenerative-repair" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Regenerative, Repair & Anti-Aging Peptides"
-                  className="category-image"
-                />
+            ) : categories.length > 0 ? (
+              categories.map((category, index) => {
+                // Use slug for route, fallback to generated slug from name
+                const routeSlug = category.slug || category.name
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '');
+                
+                // Construct image URL - use database image if available, otherwise placeholder
+                const imageUrl = category.image 
+                  ? `http://localhost:5001${category.image}`
+                  : 'https://via.placeholder.com/200x200/E0E0E0/999999?text=Product';
+                
+                return (
+                  <Link 
+                    key={category._id || index} 
+                    to={`/products/${routeSlug}`} 
+                    className="category-card"
+                  >
+                    <div className="category-image-container">
+                      <img 
+                        src={imageUrl}
+                        alt={category.name}
+                        className="category-image"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          e.target.src = 'https://via.placeholder.com/200x200/E0E0E0/999999?text=Product';
+                        }}
+                      />
+                    </div>
+                    <h3 className="category-name">{category.name}</h3>
+                  </Link>
+                );
+              })
+            ) : (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666666' }}>
+                No categories available
               </div>
-              <h3 className="category-name">Regenerative, Repair & Anti-Aging Peptides</h3>
-            </Link>
-
-            <Link to="/products/growth-hormone" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Growth Hormone-Modulating Peptides"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Growth Hormone-Modulating Peptides</h3>
-            </Link>
-
-            <Link to="/products/cognitive-mood" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Cognitive, Mood & Stress Support Peptides"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Cognitive, Mood & Stress Support Peptides</h3>
-            </Link>
-
-            <Link to="/products/skin-beauty" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Skin, Beauty & Cosmetic Peptides"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Skin, Beauty & Cosmetic Peptides</h3>
-            </Link>
-
-            <Link to="/products/sexual-wellness" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Sexual Wellness Peptides"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Sexual Wellness Peptides</h3>
-            </Link>
-
-            <Link to="/products/fat-burner" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Fat Burner Injectables"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Fat Burner Injectables</h3>
-            </Link>
-
-            <Link to="/products/hormones-growth" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Hormones & Growth Factors"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Hormones & Growth Factors</h3>
-            </Link>
-
-            <Link to="/products/vitamins-cofactors" className="category-card">
-              <div className="category-image-container">
-                <img 
-                  src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                  alt="Vitamins, Cofactors & Others"
-                  className="category-image"
-                />
-              </div>
-              <h3 className="category-name">Vitamins, Cofactors & Others</h3>
-            </Link>
+            )}
           </div>
         </div>
       </main>
