@@ -12,8 +12,14 @@ const CategoryManagement = ({ onCategoryChange }) => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    type: ''
+    type: '',
+    description: '',
+    slug: '',
+    order: '',
+    isActive: true
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -42,11 +48,34 @@ const CategoryManagement = ({ onCategoryChange }) => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -65,10 +94,22 @@ const CategoryManagement = ({ onCategoryChange }) => {
       return;
     }
 
-    const categoryData = {
-      name: formData.name.trim(),
-      type: formData.type.trim() || ''
-    };
+    // Create FormData for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name.trim());
+    formDataToSend.append('type', formData.type.trim() || '');
+    if (formData.description) formDataToSend.append('description', formData.description.trim());
+    if (formData.slug) formDataToSend.append('slug', formData.slug.trim());
+    if (formData.order) formDataToSend.append('order', formData.order);
+    formDataToSend.append('isActive', formData.isActive);
+    
+    // Append image file if new file is selected
+    if (imageFile) {
+      formDataToSend.append('image', imageFile);
+    } else if (editingCategory && editingCategory.image) {
+      // If editing and no new file, send existing image URL (backend will handle keeping it)
+      formDataToSend.append('image', editingCategory.image);
+    }
 
     try {
       const url = editingCategory 
@@ -80,10 +121,10 @@ const CategoryManagement = ({ onCategoryChange }) => {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
+          // Don't set Content-Type header - browser will set it with boundary for FormData
         },
-        body: JSON.stringify(categoryData)
+        body: formDataToSend
       });
 
       const data = await response.json();
@@ -94,8 +135,14 @@ const CategoryManagement = ({ onCategoryChange }) => {
         setEditingCategory(null);
         setFormData({
           name: '',
-          type: ''
+          type: '',
+          description: '',
+          slug: '',
+          order: '',
+          isActive: true
         });
+        setImageFile(null);
+        setImagePreview('');
         fetchCategories();
         if (onCategoryChange) onCategoryChange();
         setTimeout(() => setSuccess(''), 3000);
@@ -112,8 +159,14 @@ const CategoryManagement = ({ onCategoryChange }) => {
     setEditingCategory(category);
     setFormData({
       name: category.name || '',
-      type: category.type || ''
+      type: category.type || '',
+      description: category.description || '',
+      slug: category.slug || '',
+      order: category.order || '',
+      isActive: category.isActive !== undefined ? category.isActive : true
     });
+    setImageFile(null);
+    setImagePreview(category.image || '');
     setShowForm(true);
   };
 
@@ -157,8 +210,14 @@ const CategoryManagement = ({ onCategoryChange }) => {
     setEditingCategory(null);
     setFormData({
       name: '',
-      type: ''
+      type: '',
+      description: '',
+      slug: '',
+      order: '',
+      isActive: true
     });
+    setImageFile(null);
+    setImagePreview('');
   };
 
   return (
@@ -202,6 +261,83 @@ const CategoryManagement = ({ onCategoryChange }) => {
                   placeholder="e.g., peptide, injectable"
                 />
               </div>
+            </div>
+
+            <div className="form-group">
+              <label>Category Image (Optional)</label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {imagePreview && (
+                <div className="image-preview">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="preview-image"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview('');
+                    }}
+                    className="remove-image-btn"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+              <small className="form-hint">
+                Supported formats: JPG, PNG, GIF, WebP. Max size: 5MB
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label>Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows="3"
+                placeholder="Enter category description"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Slug</label>
+                <input
+                  type="text"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleInputChange}
+                  placeholder="category-slug"
+                />
+              </div>
+              <div className="form-group">
+                <label>Order</label>
+                <input
+                  type="number"
+                  name="order"
+                  value={formData.order}
+                  onChange={handleInputChange}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <div className="form-group-checkbox">
+              <input
+                type="checkbox"
+                name="isActive"
+                id="isActive"
+                checked={formData.isActive}
+                onChange={handleInputChange}
+              />
+              <label htmlFor="isActive">Active</label>
             </div>
 
             <div className="form-actions">

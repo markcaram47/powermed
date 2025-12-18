@@ -124,8 +124,9 @@ const Products = () => {
                   .replace(/^-+|-+$/g, '');
                 
                 // Construct image URL - use database image if available, otherwise placeholder
+                // Cloudinary URLs are already full URLs, so use directly
                 const imageUrl = category.image 
-                  ? `http://localhost:5001${category.image}`
+                  ? category.image
                   : 'https://via.placeholder.com/200x200/E0E0E0/999999?text=Product';
                 
                 return (

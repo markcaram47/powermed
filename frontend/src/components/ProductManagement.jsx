@@ -18,6 +18,8 @@ const ProductManagement = ({ onProductChange }) => {
     price: '',
     category: ''
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -71,6 +73,29 @@ const ProductManagement = ({ onProductChange }) => {
     });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -88,24 +113,35 @@ const ProductManagement = ({ onProductChange }) => {
       return;
     }
 
-    const productData = {
-      name: formData.name.trim(),
-      image: formData.image ? formData.image.trim() : '',
-      details: formData.details ? formData.details.trim() : '',
-      price: parseFloat(formData.price),
-      category: formData.category.trim()
-    };
-
     // Validate price
-    if (isNaN(productData.price) || productData.price < 0) {
+    const price = parseFloat(formData.price);
+    if (isNaN(price) || price < 0) {
       setError('Please enter a valid price');
       return;
     }
 
+    // Create FormData for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name.trim());
+    formDataToSend.append('details', formData.details ? formData.details.trim() : '');
+    formDataToSend.append('price', price.toString());
+    formDataToSend.append('category', formData.category.trim());
+    
+    // Append image file if new file is selected
+    if (imageFile) {
+      formDataToSend.append('image', imageFile);
+    } else if (editingProduct && formData.image) {
+      // If editing and no new file, send existing image URL (backend will handle keeping it)
+      formDataToSend.append('image', formData.image);
+    }
+
     // Debug logging
-    console.log('Submitting product data:', productData);
-    console.log('Selected category ID:', productData.category);
-    console.log('Available categories:', categories);
+    console.log('Submitting product data:', {
+      name: formData.name.trim(),
+      price: price,
+      category: formData.category.trim(),
+      hasImageFile: !!imageFile
+    });
 
     try {
       const url = editingProduct 
@@ -117,10 +153,10 @@ const ProductManagement = ({ onProductChange }) => {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
+          // Don't set Content-Type header - browser will set it with boundary for FormData
         },
-        body: JSON.stringify(productData)
+        body: formDataToSend
       });
 
       const data = await response.json();
@@ -136,11 +172,16 @@ const ProductManagement = ({ onProductChange }) => {
           price: '',
           category: ''
         });
+        setImageFile(null);
+        setImagePreview('');
         fetchProducts();
         if (onProductChange) onProductChange(); // Notify parent to refresh
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(data.message || 'Operation failed');
+        // Better error handling
+        const errorMessage = data.message || data.error || 'Operation failed';
+        console.error('Product save error:', errorMessage, data);
+        setError(errorMessage);
       }
     } catch (error) {
       setError('Network error. Please try again.');
@@ -157,6 +198,8 @@ const ProductManagement = ({ onProductChange }) => {
       price: product.price || '',
       category: product.category?._id || product.category || ''
     });
+    setImageFile(null);
+    setImagePreview(product.image || '');
     setShowForm(true);
   };
 
@@ -204,6 +247,8 @@ const ProductManagement = ({ onProductChange }) => {
       price: '',
       category: ''
     });
+    setImageFile(null);
+    setImagePreview('');
   };
 
   return (
@@ -240,12 +285,33 @@ const ProductManagement = ({ onProductChange }) => {
             <div className="form-group">
               <label>Product Image (Optional)</label>
               <input
-                type="text"
+                type="file"
                 name="image"
-                value={formData.image}
-                onChange={handleInputChange}
-                placeholder="Enter image URL"
+                accept="image/*"
+                onChange={handleImageChange}
               />
+              {imagePreview && (
+                <div className="image-preview">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="preview-image"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview('');
+                    }}
+                    className="remove-image-btn"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+              <small className="form-hint">
+                Supported formats: JPG, PNG, GIF, WebP. Max size: 5MB
+              </small>
             </div>
 
             <div className="form-group">

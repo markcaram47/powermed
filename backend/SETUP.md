@@ -36,6 +36,12 @@ PORT=5000
 
 # Node Environment
 NODE_ENV=development
+
+# Cloudinary Configuration (for image uploads)
+# Get these from your Cloudinary dashboard: https://cloudinary.com/console
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
 **Important:** 

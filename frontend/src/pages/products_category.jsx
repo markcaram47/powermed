@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import '../styles/home.css';
 import '../styles/products.css';
@@ -19,156 +19,149 @@ import cat7Bg from '../assets/images/product_category/cat7_bg.png';
 import cat8Bg from '../assets/images/product_category/cat8_bg.png';
 import cat9Bg from '../assets/images/product_category/cat9_bg.png';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+
 const ProductsCategory = () => {
   const { categoryId } = useParams();
+  const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Category data with products
-  const categories = {
-    'weight-management': {
-      title: (
-        <>
-          Weight Management &<br />
-          Metabolic Support<br />
-          Peptides
-        </>
-      ),
-      backgroundImage: cat1Bg,
-      products: [
-        'Semaglutide',
-        'Tirzepatide',
-        'Retatrutide',
-        'Cagrilintide',
-        'Survodutide',
-        'AOD9604',
-        '5-Amino-1MQ',
-        'MOTS-C'
-      ]
-    },
-    'regenerative-repair': {
-      title: (
-        <>
-          Regenerative, Repair<br />
-          & Anti-Aging<br />
-          Peptides
-        </>
-      ),
-      backgroundImage: cat2Bg,
-      products: [
-        'BPC-157',
-        'TB-500',
-        'GHK-Cu',
-        'Epitalon',
-        'SS-31',
-        'DSIP'
-      ]
-    },
-    'growth-hormone': {
-      title: (
-        <>
-          Growth Hormone,<br />
-          Modulating<br />
-          Peptides
-        </>
-      ),
-      backgroundImage: cat3Bg,
-      products: [
-        'CJC-1295 (DAC)',
-        'CJC-1295 (no DAC)',
-        'CJC + Ipamorelin',
-        'Ipamorelin',
-        'Sermorelin',
-        'Tesamorelin'
-      ]
-    },
-    'cognitive-mood': {
-      title: (
-        <>
-          Cognitive, Mood &<br />
-          Stress Support<br />
-          Peptides
-        </>
-      ),
-      backgroundImage: cat4Bg,
-      products: [
-        'Selank',
-        'Semax',
-        'DSIP'
-      ]
-    },
-    'skin-beauty': {
-      title: (
-        <>
-          Skin,<br />
-          Beauty & Cosmetic<br />
-          Peptides
-        </>
-      ),
-      backgroundImage: cat5Bg,
-      products: [
-        'Snap-8',
-        'GHK-Cu',
-        'BB20',
-        'GLOW (GHK-Cu + TB-500 + BPC-157)',
-        'KLOW (BPC + TB-500 + GHK-Cu + KPV)'
-      ]
-    },
-    'sexual-wellness': {
-      title: (
-        <>
-          Sexual Wellness<br />
-          Peptides
-        </>
-      ),
-      backgroundImage: cat6Bg,
-      products: [
-        'PT-141 (Bremelanotide)',
-        'Kisspeptin-10',
-        'Oxytocin'
-      ]
-    },
-    'fat-burner': {
-      title: (
-        <>
-          Fat Burner<br />
-          Injectables<br />
-          (Not Peptides)
-        </>
-      ),
-      backgroundImage: cat7Bg,
-      products: [
-        'Lipo-C',
-        'Lemon Bottle'
-      ]
-    },
-    'hormones-growth': {
-      title: (
-        <>
-          Hormones & Growth<br />
-          Factors<br />
-          (Not Peptides)
-        </>
-      ),
-      backgroundImage: cat8Bg,
-      products: [
-       'HCG',
-       'HGH',
-       'IGF-1 LR3',
-      ]
-    },
-    'vitamins-cofactors': {
-      title: 'Vitamins, Cofactors & Others',
-      backgroundImage: cat9Bg,
-      products: [
-        'NAD+',
-        'Bac Water',
-        'Acid Water',
-        'Botox'
-      ]
-    }
+  // Background images mapping (kept for display purposes)
+  const backgroundImages = {
+    'weight-management': cat1Bg,
+    'regenerative-repair': cat2Bg,
+    'growth-hormone': cat3Bg,
+    'cognitive-mood': cat4Bg,
+    'skin-beauty': cat5Bg,
+    'sexual-wellness': cat6Bg,
+    'fat-burner': cat7Bg,
+    'hormones-growth': cat8Bg,
+    'vitamins-cofactors': cat9Bg,
   };
 
-  // Get current category data
-  const currentCategory = categories[categoryId] || categories['weight-management'];
+  // Fetch category and products
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // First, fetch all categories to find the matching one
+        const categoriesResponse = await fetch(`${API_BASE_URL}/categories`);
+        const categoriesData = await categoriesResponse.json();
+        
+        const categoriesList = Array.isArray(categoriesData) 
+          ? categoriesData 
+          : (categoriesData.data || []);
+        
+        // Find category by slug or name match
+        const foundCategory = categoriesList.find(cat => {
+          const categorySlug = cat.slug || cat.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+          return categorySlug === categoryId;
+        });
+
+        if (foundCategory) {
+          setCategory(foundCategory);
+          
+          // Fetch products for this category
+          const categoryDbId = foundCategory._id || foundCategory.id;
+          const productsResponse = await fetch(`${API_BASE_URL}/products?category=${categoryDbId}`);
+          const productsData = await productsResponse.json();
+          
+          setProducts(Array.isArray(productsData) ? productsData : []);
+        } else {
+          console.error('Category not found:', categoryId);
+          setCategory(null);
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error('Error fetching category/products:', error);
+        setCategory(null);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (categoryId) {
+      fetchData();
+    }
+  }, [categoryId]);
+
+  // Filter products based on search term
+  const filteredProducts = products.filter(product =>
+    product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.details?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Get background image for category - use static mapping based on URL categoryId
+  // Try to match the URL categoryId, with fallback to partial matching
+  const getBackgroundImage = () => {
+    if (!categoryId) return cat1Bg;
+    
+    // Try exact match first
+    if (backgroundImages[categoryId]) {
+      return backgroundImages[categoryId];
+    }
+    
+    // Try partial matching - check if categoryId contains any background key
+    const slugKeys = Object.keys(backgroundImages);
+    for (const key of slugKeys) {
+      if (categoryId.includes(key)) {
+        return backgroundImages[key];
+      }
+    }
+    
+    // Default fallback
+    return cat1Bg;
+  };
+
+  const backgroundImage = getBackgroundImage();
+  
+  // Get category title - format with line breaks for better display
+  const getCategoryTitle = (categoryName) => {
+    if (!categoryName) return 'Products';
+    
+    // Split by common separators or keep as is
+    // You can customize this based on your category naming conventions
+    const words = categoryName.split(/[&,]/).map(w => w.trim());
+    
+    if (words.length > 1) {
+      return (
+        <>
+          {words.map((word, index) => (
+            <React.Fragment key={index}>
+              {word}
+              {index < words.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </>
+      );
+    }
+    
+    // For single words or phrases, try to break at logical points
+    const parts = categoryName.split(/(?=[&,])/);
+    if (parts.length > 1) {
+      return (
+        <>
+          {parts.map((part, index) => (
+            <React.Fragment key={index}>
+              {part.trim()}
+              {index < parts.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </>
+      );
+    }
+    
+    return categoryName;
+  };
+
+  const categoryTitle = category ? getCategoryTitle(category.name) : (categoryId || 'Products');
 
   return (
     <div className="home-container">
@@ -206,11 +199,11 @@ const ProductsCategory = () => {
         <div className="category-banner-section">
           <div 
             className="category-banner-background"
-            style={{ backgroundImage: `url(${currentCategory.backgroundImage})` }}
+            style={{ backgroundImage: `url(${backgroundImage})` }}
           >
             <div className="category-banner-content">
               <div className="category-banner-left">
-                <h1 className="category-banner-title">{currentCategory.title}</h1>
+                <h1 className="category-banner-title">{categoryTitle}</h1>
               </div>
             </div>
           </div>
@@ -225,6 +218,8 @@ const ProductsCategory = () => {
                 type="text" 
                 placeholder="Search...." 
                 className="products-search-input"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <button className="products-search-button">
                 <span className="search-icon">🔍</span>
@@ -234,25 +229,42 @@ const ProductsCategory = () => {
 
           {/* Info Text */}
           <div className="products-info-text">
-            <p className="products-info-line1">Showing 1-{currentCategory.products.length} item(s)</p>
+            <p className="products-info-line1">
+              {loading 
+                ? 'Loading...' 
+                : `Showing ${filteredProducts.length > 0 ? 1 : 0}-${filteredProducts.length} item(s)`}
+            </p>
             <p className="products-info-line2">Below is the list of our available PowerMed products.</p>
           </div>
 
           {/* Products Grid */}
-          <div className="products-categories-grid">
-            {currentCategory.products.map((product, index) => (
-              <div key={index} className="product-item-card">
-                <div className="product-item-image-container">
-                  <img 
-                    src="https://via.placeholder.com/200x200/E0E0E0/999999?text=Product" 
-                    alt={product}
-                    className="product-item-image"
-                  />
+          {loading ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666666' }}>
+              Loading products...
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            <div className="products-categories-grid">
+              {filteredProducts.map((product) => (
+                <div key={product._id} className="product-item-card">
+                  <div className="product-item-image-container">
+                    <img 
+                      src={product.image || 'https://via.placeholder.com/200x200/E0E0E0/999999?text=Product'} 
+                      alt={product.name}
+                      className="product-item-image"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/200x200/E0E0E0/999999?text=Product';
+                      }}
+                    />
+                  </div>
+                  <h3 className="product-item-name">{product.name}</h3>
                 </div>
-                <h3 className="product-item-name">{product}</h3>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666666' }}>
+              {searchTerm ? 'No products found matching your search.' : 'No products available in this category.'}
+            </div>
+          )}
         </div>
       </main>
 
