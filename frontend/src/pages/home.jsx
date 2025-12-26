@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import '../styles/home.css';
 import logoImage from '../assets/images/logo.png';
-import productImage1 from '../assets/images/c1.png';
+
+import productImage1 from '../assets/images/home/pc1.png';
+import productImage2 from '../assets/images/home/pc2.png';
+import productImage3 from '../assets/images/home/pc3.png';
+import productImage4 from '../assets/images/home/pc4.png';
+import productImage5 from '../assets/images/home/pc5.png';
+import productImage6 from '../assets/images/home/pc6.png';
+import productImage7 from '../assets/images/home/pc7.png';
+import productImage8 from '../assets/images/home/pc8.png';
+import productImage9 from '../assets/images/home/pc9.png';
+
 import doctorImage from '../assets/images/doc1.png';
 import pillsImage from '../assets/images/med1.png';
 import footerLogoImage from '../assets/images/footer_lg.png';
@@ -106,28 +116,40 @@ const Home = () => {
   ];
 
   // Array of 9 images for the carousel - using c1.png for all products
+
+  const images = [productImage1, productImage2, productImage3, productImage4, productImage5, productImage6, productImage7, productImage8, productImage9];
+
   const productImages = Array.from({ length: 9 }, (_, i) => ({
     id: i + 1,
-    url: productImage1
+    url: images[i]
   }));
 
   // Auto-rotate carousel every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % productImages.length);
+      setCurrentImageIndex((prevIndex) => prevIndex + 1);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [productImages.length]);
+  }, []);
 
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % productImages.length);
+    setCurrentImageIndex((prevIndex) => prevIndex + 1);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? productImages.length - 1 : prevIndex - 1
-    );
+    if (currentImageIndex === 0) {
+      // Jump to last real image
+      const track = document.querySelector('.carousel-track');
+      track.style.transition = 'none';
+      setCurrentImageIndex(productImages.length);
+      setTimeout(() => {
+        track.style.transition = 'transform 0.5s ease-in-out';
+        setCurrentImageIndex(productImages.length - 1);
+      }, 50);
+    } else {
+      setCurrentImageIndex((prevIndex) => prevIndex - 1);
+    }
   };
 
   // Get current category based on currentImageIndex - use fetched categories or fallback
@@ -249,46 +271,48 @@ const Home = () => {
           </div>
           <div className="hero-right">
             <div className="product-carousel">
-              {/* Decorative red plus signs - positioned relative to carousel */}
-              <div className="decorative-plus-plus">+</div>
-              <div className="decorative-plus-plus decorative-plus-2">+</div>
-              
-              <button className="carousel-btn carousel-prev" onClick={prevImage}>
-                ‹
-              </button>
+              {/* The Window (hides overflow) */}
               <div className="carousel-container">
-                {productImages.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className={`carousel-slide ${
-                      index === currentImageIndex ? 'active' : ''
-                    }`}
-                  >
+                
+                {/* The Track (Moves left/right) */}
+                <div 
+                  className="carousel-track"
+                  style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+                  onTransitionEnd={() => {
+                    if (currentImageIndex === productImages.length) {
+                      // Jump back to first image without animation
+                      const track = document.querySelector('.carousel-track');
+                      track.style.transition = 'none';
+                      setCurrentImageIndex(0);
+                      setTimeout(() => {
+                        track.style.transition = 'transform 0.5s ease-in-out';
+                      }, 50);
+                    }
+                  }}
+                >
+                  {/* Original images */}
+                  {productImages.map((image, index) => (
+                    <div
+                      key={image.id}
+                      className="carousel-slide"
+                    >
+                      <img 
+                        src={image.url} 
+                        alt={`Product ${image.id}`}
+                        className="product-image"
+                      />
+                    </div>
+                  ))}
+                  {/* Clone first image for seamless loop */}
+                  <div className="carousel-slide">
                     <img 
-                      src={image.url} 
-                      alt={`Product ${image.id}`}
+                      src={productImages[0].url} 
+                      alt="Product 1"
                       className="product-image"
                     />
                   </div>
-                ))}
-              </div>
-              <button className="carousel-btn carousel-next" onClick={nextImage}>
-                ›
-              </button>
-              <div className="carousel-dots">
-                {productImages.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`dot ${index === currentImageIndex ? 'active' : ''}`}
-                    onClick={() => setCurrentImageIndex(index)}
-                  ></span>
-                ))}
-              </div>
-              
-              {/* Category Label Bubble - changes with carousel */}
-              <div className="category-label">
-                <div className="category-line-1">{currentCategory.line1}</div>
-                <div className="category-line-2">{currentCategory.line2}</div>
+                </div>
+                
               </div>
             </div>
           </div>

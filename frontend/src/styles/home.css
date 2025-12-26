@@ -123,11 +123,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 750px;
-  padding: 4rem 3rem;
+  height: 650px;
+  padding: 2rem 3rem;
   max-width: 1400px;
   margin: 0 auto;
-  gap: 3rem;
   position: relative;
   overflow: visible;
 }
@@ -136,7 +135,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
   align-items: flex-start;
   text-align: left;
 }
@@ -175,17 +173,18 @@
 
 .shop-now-btn {
   width: fit-content;
-  padding: 1rem 3rem;
-  font-size: 1rem;
+  padding: 10px 2rem;
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.1em;
   background-color: transparent;
-  border: 2px solid #4A9E9E;
+  border: 3px solid #4A9E9E;
   border-radius: 30px;
-  color: #000000;
+  color: #FF3233;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
+  margin-bottom: 90px;
 }
 
 .shop-now-btn:hover {
@@ -226,8 +225,8 @@
 .product-carousel {
   position: relative;
   width: 100%;
-  max-width: 450px;
-  height: 600px;
+  max-width: 585px;
+  height: 780px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -235,27 +234,38 @@
 
 .carousel-container {
   position: relative;
-  width: 100%;
+  width: 130%;
   height: 100%;
-  overflow: hidden;
+  overflow: hidden; 
   border-radius: 10px;
+  margin-left: -15%;
+}
+
+.carousel-track {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  transition: transform 0.5s ease-in-out;
 }
 
 .carousel-slide {
-  position: absolute;
-  width: 100%;
+  min-width: 100%; 
+  width: 100%; 
+  flex-shrink: 0; 
+  
   height: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 
-.carousel-slide.active {
-  opacity: 1;
+  overflow: hidden; 
 }
 
 .product-image {
-  width: 100%;
-  height: 100%;
+  width: 90%; 
+  max-width: none; 
+  height: auto;
   object-fit: contain;
 }
 
@@ -1095,6 +1105,14 @@
 }
 
 /* Responsive Design */
+
+@media (max-width: 1920px){
+  .hero-section {
+    height: 650px;
+  }
+
+}
+
 @media (max-width: 1024px) {
   .hero-section {
     flex-direction: column;
@@ -1107,6 +1125,10 @@
 
   .hero-tagline {
     font-size: 2.5rem;
+  }
+
+  .product-image{
+    width: 130%;
   }
 
   .features-content {
