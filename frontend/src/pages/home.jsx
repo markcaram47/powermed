@@ -14,7 +14,6 @@ import socialsImage from '../assets/images/footer_icons/socials.png';
 const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
@@ -174,34 +173,9 @@ const Home = () => {
   
   const currentCategory = getCurrentCategory();
 
-  // Testimonials/Reviews data
-  const testimonials = [
-    {
-      name: 'Jordan N.',
-      rating: 5,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-    },
-    {
-      name: 'Sarah M.',
-      rating: 5,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-    },
-    {
-      name: 'Michael T.',
-      rating: 5,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-    }
-  ];
+ 
 
-  const nextReview = () => {
-    setCurrentReviewIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-  };
 
-  const prevReview = () => {
-    setCurrentReviewIndex((prevIndex) => 
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-    );
-  };
 
   return (
     <div className="home-container">
@@ -402,56 +376,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Fourth Div - Reviews/Testimonials Section */}
-        <div className="reviews-section">
-          <div className="reviews-container">
-            <div className="reviews-header">
-              <h2 className="reviews-title">WHAT OTHERS SAY</h2>
-              <p className="reviews-description">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
-            
-            <div className="reviews-carousel-container">
-              <button className="review-carousel-btn review-carousel-prev" onClick={prevReview}>
-                ‹
-              </button>
-              
-              <div className="reviews-carousel">
-                <div 
-                  className="reviews-carousel-track"
-                  style={{ transform: `translateX(calc(10% - ${currentReviewIndex} * (80% + 2rem)))` }}
-                >
-                  {testimonials.map((testimonial, index) => (
-                    <div key={index} className="review-card">
-                      <h3 className="review-name">{testimonial.name}</h3>
-                      <div className="review-stars">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <span key={i} className="star">★</span>
-                        ))}
-                      </div>
-                      <p className="review-text">{testimonial.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <button className="review-carousel-btn review-carousel-next" onClick={nextReview}>
-                ›
-              </button>
-            </div>
-            
-            <div className="review-dots">
-              {testimonials.map((_, index) => (
-                <span
-                  key={index}
-                  className={`review-dot ${index === currentReviewIndex ? 'active' : ''}`}
-                  onClick={() => setCurrentReviewIndex(index)}
-                ></span>
-              ))}
-            </div>
-          </div>
-        </div>
+       
 
         {/* Fifth Div - Questions Section */}
         <div className="questions-section">

@@ -106,7 +106,7 @@ const Products = () => {
             <p className="products-info-line1">
               Showing {loadingCategories ? '...' : `1-${categories.length}`} item(s)
             </p>
-            <p className="products-info-line2">Below is the list of our available PowerBath.</p>
+            <p className="products-info-line2">Below is the list of our available PowerMed.</p>
           </div>
 
           {/* Categories Grid */}
