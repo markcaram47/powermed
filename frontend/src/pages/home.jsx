@@ -27,6 +27,7 @@ const Home = () => {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // ADD THIS
 
   // Array of 9 categories with line breaks (for carousel) - fallback if API data not available
   const carouselCategories = [
@@ -90,7 +91,6 @@ const Home = () => {
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        // Keep empty array on error so UI shows "No categories available"
         setCategories([]);
       } finally {
         setLoadingCategories(false);
@@ -107,15 +107,12 @@ const Home = () => {
       { name: 'Tirzepatide', dosage: '45/5mg', description: 'All our products underwent strict quality control' },
       { name: 'Retatrutide', dosage: '65/5mg', description: 'All our products underwent strict quality control' }
     ],
-    // Repeat for other categories - for now using same products
     ...Array(8).fill([
       { name: 'Product 1', dosage: '40/5mg', description: 'All our products underwent strict quality control' },
       { name: 'Product 2', dosage: '45/5mg', description: 'All our products underwent strict quality control' },
       { name: 'Product 3', dosage: '65/5mg', description: 'All our products underwent strict quality control' }
     ])
   ];
-
-  // Array of 9 images for the carousel - using c1.png for all products
 
   const images = [productImage1, productImage2, productImage3, productImage4, productImage5, productImage6, productImage7, productImage8, productImage9];
 
@@ -139,7 +136,6 @@ const Home = () => {
 
   const prevImage = () => {
     if (currentImageIndex === 0) {
-      // Jump to last real image
       const track = document.querySelector('.carousel-track');
       track.style.transition = 'none';
       setCurrentImageIndex(productImages.length);
@@ -152,11 +148,8 @@ const Home = () => {
     }
   };
 
-  // Get current category based on currentImageIndex - use fetched categories or fallback
   const getCurrentCategory = () => {
-    // Check if categories are loaded and the index is valid
     if (categories.length > 0 && categories[currentImageIndex] && categories[currentImageIndex].name) {
-      // Split category name for carousel display (simple split at '&' or take first part)
       const name = categories[currentImageIndex].name;
       if (name && typeof name === 'string') {
         const parts = name.split(' & ');
@@ -166,7 +159,6 @@ const Home = () => {
             line2: parts.slice(1).join(' & ')
           };
         }
-        // Try splitting at other common separators
         const dashSplit = name.split('–');
         if (dashSplit.length > 1) {
           return {
@@ -174,7 +166,6 @@ const Home = () => {
             line2: dashSplit.slice(1).join('–')
           };
         }
-        // If no good split point, try to split in middle
         const midPoint = Math.ceil(name.length / 2);
         const spaceIndex = name.lastIndexOf(' ', midPoint);
         if (spaceIndex > 0) {
@@ -189,14 +180,12 @@ const Home = () => {
         };
       }
     }
-    // Fallback to carouselCategories if categories haven't loaded yet
     const fallbackIndex = currentImageIndex < carouselCategories.length ? currentImageIndex : 0;
     return carouselCategories[fallbackIndex] || { line1: '', line2: '' };
   };
   
   const currentCategory = getCurrentCategory();
 
-  // Testimonials/Reviews data
   const testimonials = [
     {
       name: 'Jordan N.',
@@ -225,37 +214,91 @@ const Home = () => {
     );
   };
 
+  // ADD THESE TWO FUNCTIONS
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  //header scroll event
+  useEffect(() => {
+    const handleScroll = () => {
+      const header = document.querySelector(".header");
+      if (window.scrollY > 50) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="home-container">
       {/* Header */}
       <header className="header">
         <div className="header-left">
           <div className="logo-container">
-            <img 
-              src={logoImage} 
-              alt="PowerMed Logo" 
-              className="logo"
-            />
+            <img src={logoImage} alt="PowerMed Logo" className="logo" />
           </div>
         </div>
-        <nav className="header-nav">
-          <NavLink to="/" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+
+        {/* ADD MOBILE MENU TOGGLE BUTTON */}
+        <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+          ☰
+        </button>
+
+        {/* ADD MOBILE OVERLAY */}
+        <div 
+          className={`mobile-overlay ${mobileMenuOpen ? 'active' : ''}`}
+          onClick={closeMobileMenu}
+        ></div>
+
+        {/* UPDATE NAV WITH MOBILE MENU CLASSES */}
+        <nav className={`header-nav ${mobileMenuOpen ? 'active' : ''}`}>
+          {/* ADD CLOSE BUTTON */}
+          <button className="mobile-menu-close" onClick={closeMobileMenu}>
+            ×
+          </button>
+
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={closeMobileMenu}
+          >
             Home
           </NavLink>
-          <NavLink to="/products" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            Products
-            <span className="dropdown-arrow">▼</span>
+          <NavLink 
+            to="/products" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={closeMobileMenu}
+          >
+            Products <span className="dropdown-arrow">▼</span>
           </NavLink>
-          <NavLink to="/about" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          <NavLink 
+            to="/about" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={closeMobileMenu}
+          >
             About Us
           </NavLink>
-          <NavLink to="/contact" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+          <NavLink 
+            to="/contact" 
+            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+            onClick={closeMobileMenu}
+          >
             Contact Us
           </NavLink>
         </nav>
       </header>
 
-      {/* Body */}
+      {/* Rest of your code remains the same... */}
       <main className="main-content">
         {/* First Div - Hero Section */}
         <div className="hero-section">
@@ -271,16 +314,12 @@ const Home = () => {
           </div>
           <div className="hero-right">
             <div className="product-carousel">
-              {/* The Window (hides overflow) */}
               <div className="carousel-container">
-                
-                {/* The Track (Moves left/right) */}
                 <div 
                   className="carousel-track"
                   style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
                   onTransitionEnd={() => {
                     if (currentImageIndex === productImages.length) {
-                      // Jump back to first image without animation
                       const track = document.querySelector('.carousel-track');
                       track.style.transition = 'none';
                       setCurrentImageIndex(0);
@@ -290,12 +329,8 @@ const Home = () => {
                     }
                   }}
                 >
-                  {/* Original images */}
                   {productImages.map((image, index) => (
-                    <div
-                      key={image.id}
-                      className="carousel-slide"
-                    >
+                    <div key={image.id} className="carousel-slide">
                       <img 
                         src={image.url} 
                         alt={`Product ${image.id}`}
@@ -303,7 +338,6 @@ const Home = () => {
                       />
                     </div>
                   ))}
-                  {/* Clone first image for seamless loop */}
                   <div className="carousel-slide">
                     <img 
                       src={productImages[0].url} 
@@ -312,32 +346,23 @@ const Home = () => {
                     />
                   </div>
                 </div>
-                
               </div>
             </div>
           </div>
         </div>
 
-        {/* Second Div - Features Section */}
+        {/* Rest of your sections... */}
+        {/* (Keep all other sections as they are) */}
         <div className="features-section">
-          {/* Decorative pills in top right */}
           <div className="decorative-pills">
-            <img 
-              src={pillsImage} 
-              alt="Decorative Pills" 
-              className="pills-image"
-            />
+            <img src={pillsImage} alt="Decorative Pills" className="pills-image" />
           </div>
           
           <div className="features-content">
             <div className="features-left">
               <h2 className="features-title">Lorem ipsum dolor sit amet is olor.</h2>
               <div className="doctor-image-container">
-                <img 
-                  src={doctorImage} 
-                  alt="Doctor" 
-                  className="doctor-image"
-                />
+                <img src={doctorImage} alt="Doctor" className="doctor-image" />
               </div>
             </div>
             
@@ -345,9 +370,7 @@ const Home = () => {
               <div className="features-grid">
                 {[1, 2, 3, 4, 5, 6].map((item) => (
                   <div key={item} className="feature-card">
-                    <div className="feature-icon">
-                      {/* Placeholder icon - gray square with rounded corners */}
-                    </div>
+                    <div className="feature-icon"></div>
                     <h3 className="feature-title">Quality Products</h3>
                     <p className="feature-description">
                       All our products underwent strict quality control
@@ -359,7 +382,6 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Third Div - Products Section */}
         <div className="products-section">
           <div className="products-header">
             <h2 className="products-title">Our Products</h2>
@@ -389,9 +411,7 @@ const Home = () => {
               {selectedCategory !== null && categories[selectedCategory] && categoryProducts[selectedCategory] ? (
                 categoryProducts[selectedCategory].map((product, index) => (
                   <div key={index} className="product-card">
-                    <div className="product-bubble">
-                      {product.dosage}
-                    </div>
+                    <div className="product-bubble">{product.dosage}</div>
                     <div className="product-image-container">
                       <img 
                         src="https://via.placeholder.com/200x300/4A9E9E/FFFFFF?text=Product" 
@@ -404,12 +424,9 @@ const Home = () => {
                   </div>
                 ))
               ) : (
-                // Show placeholder when no category is selected
                 [1, 2, 3].map((item) => (
                   <div key={item} className="product-card">
-                    <div className="product-bubble">
-                      --
-                    </div>
+                    <div className="product-bubble">--</div>
                     <div className="product-image-container">
                       <img 
                         src="https://via.placeholder.com/200x300/E0E0E0/999999?text=Select+Category" 
@@ -426,58 +443,6 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Fourth Div - Reviews/Testimonials Section */}
-        <div className="reviews-section">
-          <div className="reviews-container">
-            <div className="reviews-header">
-              <h2 className="reviews-title">WHAT OTHERS SAY</h2>
-              <p className="reviews-description">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </p>
-            </div>
-            
-            <div className="reviews-carousel-container">
-              <button className="review-carousel-btn review-carousel-prev" onClick={prevReview}>
-                ‹
-              </button>
-              
-              <div className="reviews-carousel">
-                <div 
-                  className="reviews-carousel-track"
-                  style={{ transform: `translateX(calc(10% - ${currentReviewIndex} * (80% + 2rem)))` }}
-                >
-                  {testimonials.map((testimonial, index) => (
-                    <div key={index} className="review-card">
-                      <h3 className="review-name">{testimonial.name}</h3>
-                      <div className="review-stars">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <span key={i} className="star">★</span>
-                        ))}
-                      </div>
-                      <p className="review-text">{testimonial.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <button className="review-carousel-btn review-carousel-next" onClick={nextReview}>
-                ›
-              </button>
-            </div>
-            
-            <div className="review-dots">
-              {testimonials.map((_, index) => (
-                <span
-                  key={index}
-                  className={`review-dot ${index === currentReviewIndex ? 'active' : ''}`}
-                  onClick={() => setCurrentReviewIndex(index)}
-                ></span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Fifth Div - Questions Section */}
         <div className="questions-section">
           <div className="questions-container">
             <div className="questions-left">
@@ -507,25 +472,16 @@ const Home = () => {
                 <span className="questions-right-line2">answered. Check this out:</span>
               </h3>
               <div className="questions-list">
-                <div className="question-item">
-                  <p>Question 1</p>
-                </div>
-                <div className="question-item">
-                  <p>Question 2</p>
-                </div>
-                <div className="question-item">
-                  <p>Question 3</p>
-                </div>
-                <div className="question-item">
-                  <p>Question 4</p>
-                </div>
+                <div className="question-item"><p>Question 1</p></div>
+                <div className="question-item"><p>Question 2</p></div>
+                <div className="question-item"><p>Question 3</p></div>
+                <div className="question-item"><p>Question 4</p></div>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-left">
