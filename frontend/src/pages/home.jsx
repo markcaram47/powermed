@@ -27,45 +27,7 @@ const Home = () => {
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Array of 9 categories with line breaks (for carousel) - fallback if API data not available
-  const carouselCategories = [
-    {
-      line1: 'Weight Management &',
-      line2: 'Metabolic Support Peptides'
-    },
-    {
-      line1: 'Regenerative, Repair &',
-      line2: 'Anti-Aging Peptides'
-    },
-    {
-      line1: 'Growth Hormone–',
-      line2: 'Modulating Peptides'
-    },
-    {
-      line1: 'Cognitive, Mood &',
-      line2: 'Stress Support Peptides'
-    },
-    {
-      line1: 'Skin, Beauty &',
-      line2: 'Cosmetic Peptides'
-    },
-    {
-      line1: 'Sexual Wellness',
-      line2: 'Peptides'
-    },
-    {
-      line1: 'Fat Burner Injectables',
-      line2: '(Not Peptides)'
-    },
-    {
-      line1: 'Hormones & Growth Factors',
-      line2: '(Not Peptides)'
-    },
-    {
-      line1: 'Vitamins, Cofactors &',
-      line2: 'Others'
-    }
-  ];
+ 
 
   // Fetch categories from API
   useEffect(() => {
@@ -132,68 +94,11 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => prevIndex + 1);
-  };
 
-  const prevImage = () => {
-    if (currentImageIndex === 0) {
-      // Jump to last real image
-      const track = document.querySelector('.carousel-track');
-      track.style.transition = 'none';
-      setCurrentImageIndex(productImages.length);
-      setTimeout(() => {
-        track.style.transition = 'transform 0.5s ease-in-out';
-        setCurrentImageIndex(productImages.length - 1);
-      }, 50);
-    } else {
-      setCurrentImageIndex((prevIndex) => prevIndex - 1);
-    }
-  };
 
-  // Get current category based on currentImageIndex - use fetched categories or fallback
-  const getCurrentCategory = () => {
-    // Check if categories are loaded and the index is valid
-    if (categories.length > 0 && categories[currentImageIndex] && categories[currentImageIndex].name) {
-      // Split category name for carousel display (simple split at '&' or take first part)
-      const name = categories[currentImageIndex].name;
-      if (name && typeof name === 'string') {
-        const parts = name.split(' & ');
-        if (parts.length > 1) {
-          return {
-            line1: parts[0] + ' &',
-            line2: parts.slice(1).join(' & ')
-          };
-        }
-        // Try splitting at other common separators
-        const dashSplit = name.split('–');
-        if (dashSplit.length > 1) {
-          return {
-            line1: dashSplit[0] + '–',
-            line2: dashSplit.slice(1).join('–')
-          };
-        }
-        // If no good split point, try to split in middle
-        const midPoint = Math.ceil(name.length / 2);
-        const spaceIndex = name.lastIndexOf(' ', midPoint);
-        if (spaceIndex > 0) {
-          return {
-            line1: name.substring(0, spaceIndex),
-            line2: name.substring(spaceIndex + 1)
-          };
-        }
-        return {
-          line1: name,
-          line2: ''
-        };
-      }
-    }
-    // Fallback to carouselCategories if categories haven't loaded yet
-    const fallbackIndex = currentImageIndex < carouselCategories.length ? currentImageIndex : 0;
-    return carouselCategories[fallbackIndex] || { line1: '', line2: '' };
-  };
-  
-  const currentCategory = getCurrentCategory();
+
+
+
 
  
 
