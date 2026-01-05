@@ -169,7 +169,16 @@ const Contact = () => {
             </div>
           </div>
           <div className="contact-map-section">
-            {/* Google Maps embed will go here */}
+            <iframe 
+              width="100%" 
+              height="450" 
+              style={{border: 0}} 
+              loading="lazy" 
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps/embed/v1/place?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&q=place_id:ChIJw6uRK0S3lzMRHabM9Rmpxk8&zoom=16"
+              title="TDT Powersteel Corporation - 1017 Vicente Cruz St, Sampaloc, Manila"
+            ></iframe>
           </div>
         </div>
       </main>

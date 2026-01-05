@@ -27,9 +27,33 @@ const Home = () => {
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // ADD THIS
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); //CHE 
+  
+  // QNA Section States
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [popup, setPopup] = useState({ visible: false, question: '', answer: '' });
 
-  // Array of 9 categories with line breaks (for carousel) - fallback if API data not available
+  // Hardcoded FAQs
+  const homeFAQs = [
+    {
+      question: "What are peptides and how do they work?",
+      answer: "Peptides are short chains of amino acids that act as signaling molecules in the body. They can help regulate various biological functions including metabolism, tissue repair, and hormone production."
+    },
+    {
+      question: "Are your products safe and tested?",
+      answer: "Yes, all our products undergo strict quality control and testing procedures. We ensure that every product meets pharmaceutical-grade standards before reaching our customers."
+    },
+    {
+      question: "How long does shipping take?",
+      answer: "Standard shipping typically takes 3-5 business days within Metro Manila and 5-7 business days for provincial areas. Express shipping options are also available."
+    },
+    {
+      question: "Do I need a prescription for peptide products?",
+      answer: "Some peptide products may require a prescription depending on local regulations. We recommend consulting with a healthcare professional before starting any new supplement regimen."
+    }
+  ];
+
   const carouselCategories = [
     {
       line1: 'Weight Management &',
@@ -68,6 +92,31 @@ const Home = () => {
       line2: 'Others'
     }
   ];
+
+  // QNA Section Handlers
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate email submission
+    setTimeout(() => {
+      alert(`Thank you! We'll contact you at ${email}`);
+      setEmail('');
+      setIsSubmitting(false);
+    }, 1000);
+  };
+
+  const handlePopup = (question, answer) => {
+    setPopup({ visible: true, question, answer });
+  };
+
+  const closePopup = () => {
+    setPopup({ visible: false, question: '', answer: '' });
+  };
 
   // Fetch categories from API
   useEffect(() => {
@@ -214,7 +263,7 @@ const Home = () => {
     );
   };
 
-  // ADD THESE TWO FUNCTIONS
+  // mobile menu toggle functions CHE
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -223,7 +272,7 @@ const Home = () => {
     setMobileMenuOpen(false);
   };
 
-  //header scroll event
+  //header on scroll CHE
   useEffect(() => {
     const handleScroll = () => {
       const header = document.querySelector(".header");
@@ -239,9 +288,27 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Footer animation on scroll CHE
+  useEffect(() => {
+    const footer = document.querySelector(".footer");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            footer.classList.add("footer-visible");
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    if (footer) observer.observe(footer);
+  }, []);
+
+
   return (
     <div className="home-container">
-      {/* Header */}
+      {/* Header CHE */}
       <header className="header">
         <div className="header-left">
           <div className="logo-container">
@@ -249,20 +316,16 @@ const Home = () => {
           </div>
         </div>
 
-        {/* ADD MOBILE MENU TOGGLE BUTTON */}
         <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
           ☰
         </button>
 
-        {/* ADD MOBILE OVERLAY */}
         <div 
           className={`mobile-overlay ${mobileMenuOpen ? 'active' : ''}`}
           onClick={closeMobileMenu}
         ></div>
 
-        {/* UPDATE NAV WITH MOBILE MENU CLASSES */}
         <nav className={`header-nav ${mobileMenuOpen ? 'active' : ''}`}>
-          {/* ADD CLOSE BUTTON */}
           <button className="mobile-menu-close" onClick={closeMobileMenu}>
             ×
           </button>
@@ -298,7 +361,6 @@ const Home = () => {
         </nav>
       </header>
 
-      {/* Rest of your code remains the same... */}
       <main className="main-content">
         {/* First Div - Hero Section */}
         <div className="hero-section">
@@ -351,8 +413,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Rest of your sections... */}
-        {/* (Keep all other sections as they are) */}
+        {/* Features Section */}
         <div className="features-section">
           <div className="decorative-pills">
             <img src={pillsImage} alt="Decorative Pills" className="pills-image" />
@@ -382,6 +443,7 @@ const Home = () => {
           </div>
         </div>
 
+        {/* Products Section */}
         <div className="products-section">
           <div className="products-header">
             <h2 className="products-title">Our Products</h2>
@@ -443,42 +505,61 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="questions-section">
-          <div className="questions-container">
-            <div className="questions-left">
-              <h2 className="questions-title">
-                <div className="questions-title-line1">Got A Question</div>
-                <div className="questions-title-line2">
-                  For <span className="questions-power">Power</span><span className="questions-m">M</span><span className="questions-ed">ed?</span>
-                </div>
-              </h2>
-              <p className="questions-description">
-                <span className="questions-desc-line1">If there are questions you want to ask</span>
-                <span className="questions-desc-line2">we we will answer all your question.</span>
-              </p>
-              <div className="questions-form">
-                <input 
-                  type="email" 
-                  placeholder="Enter Your Email" 
-                  className="questions-input"
+        {/* QNA Section - Hardcoded */}
+        <div className="qna">
+          <div className="Qemail">
+            <h1>Got A Question <br />For Power<span>M</span>ed?</h1>
+            <p>If there are questions you want to ask, <br />
+            we will answer all your questions.</p>
+
+            <div className="Qemail-container">
+              <form className="QemailForm" onSubmit={handleSubmit}>
+                <input
+                  type="email"
+                  placeholder="Enter Your Email"
+                  className="emailInput"
+                  value={email}
+                  onChange={handleEmailChange}
+                  required
+                  aria-label="Email address"
+                  disabled={isSubmitting}
                 />
-                <button className="questions-submit-btn">Submit</button>
-              </div>
-            </div>
-            
-            <div className="questions-right">
-              <h3 className="questions-right-title">
-                <span className="questions-right-line1">Maybe your question is have been</span>
-                <span className="questions-right-line2">answered. Check this out:</span>
-              </h3>
-              <div className="questions-list">
-                <div className="question-item"><p>Question 1</p></div>
-                <div className="question-item"><p>Question 2</p></div>
-                <div className="question-item"><p>Question 3</p></div>
-                <div className="question-item"><p>Question 4</p></div>
-              </div>
+                <button 
+                  type="submit" 
+                  className="submitButton"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Submit'}
+                </button>
+              </form>
             </div>
           </div>
+
+          <div className="Qfaqs">
+            <p>Maybe your question has already been <br />answered. Check this out:</p>
+            <div className="Qdivider"></div>
+            
+            {homeFAQs.map((faq, index) => (
+              <React.Fragment key={index}>
+                <div className={`Q${index + 1}`}>
+                  <button onClick={() => handlePopup(faq.question, faq.answer)}>
+                    <span>{faq.question}</span>
+                  </button>
+                </div>
+                <div className="Qdivider"></div>
+              </React.Fragment>
+            ))}
+          </div>
+          
+          {popup.visible && (
+            <div className="lp-popup-overlay" onClick={closePopup}>
+              <div className="lp-popup-box" onClick={(e) => e.stopPropagation()}>
+                <h2>{popup.question}</h2>
+                <p>{popup.answer}</p>
+                <button onClick={closePopup} className="popup-close">Close</button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 

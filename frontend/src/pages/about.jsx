@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import '../styles/home.css';
+import '../styles/about.css';
 import logoImage from '../assets/images/logo.png';
 import footerLogoImage from '../assets/images/footer_lg.png';
 import locIcon from '../assets/images/footer_icons/loc.png';
@@ -9,41 +9,164 @@ import callIcon from '../assets/images/footer_icons/call.png';
 import socialsImage from '../assets/images/footer_icons/socials.png';
 
 const About = () => {
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
+
+  // mobile menu toggle functions 
+    const toggleMobileMenu = () => {
+      setMobileMenuOpen(!mobileMenuOpen);
+    };
+  
+    const closeMobileMenu = () => {
+      setMobileMenuOpen(false);
+    };
+  
+    //header on scroll 
+    useEffect(() => {
+      const handleScroll = () => {
+        const header = document.querySelector(".header");
+        if (window.scrollY > 50) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+  
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+  
+    // Footer animation on scroll 
+    useEffect(() => {
+      const footer = document.querySelector(".footer");
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              footer.classList.add("footer-visible");
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+  
+      if (footer) observer.observe(footer);
+    }, []);
+
   return (
-    <div className="home-container">
-      {/* Header */}
+    <div className="about-container">
+     {/* Header */}
       <header className="header">
         <div className="header-left">
           <div className="logo-container">
-            <img 
-              src={logoImage} 
-              alt="PowerMed Logo" 
-              className="logo"
-            />
-          </div>
+              <img src={logoImage} alt="PowerMed Logo" className="logo" />
+           </div>
         </div>
-        <nav className="header-nav">
-          <NavLink to="/" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            Home
-          </NavLink>
-          <NavLink to="/products" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            Products
-            <span className="dropdown-arrow">▼</span>
-          </NavLink>
-          <NavLink to="/about" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            About Us
-          </NavLink>
-          <NavLink to="/contact" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            Contact Us
-          </NavLink>
+    
+        <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+          ☰
+        </button>
+    
+        <div 
+          className={`mobile-overlay ${mobileMenuOpen ? 'active' : ''}`}
+            onClick={closeMobileMenu}
+        ></div>
+    
+        <nav className={`header-nav ${mobileMenuOpen ? 'active' : ''}`}>
+          <button className="mobile-menu-close" onClick={closeMobileMenu}>
+              ×
+          </button>
+    
+        <NavLink 
+          to="/" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          onClick={closeMobileMenu}
+        >
+          Home
+        </NavLink>
+        <NavLink 
+          to="/products" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          onClick={closeMobileMenu}
+        >
+          Products <span className="dropdown-arrow">▼</span>
+        </NavLink>
+        <NavLink 
+          to="/about" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          onClick={closeMobileMenu}
+        >
+          About Us
+        </NavLink>
+        <NavLink 
+          to="/contact" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          onClick={closeMobileMenu}
+        >
+          Contact Us
+        </NavLink>
         </nav>
       </header>
 
       {/* Body */}
       <main className="main-content">
-        {/* Content will be added step by step */}
-        <div className="about-body-section">
-          {/* Content placeholder */}
+        {/* top section */}
+        <div className="about-top-section">
+          <div className="about-top-bg">
+            <img src="https://figmage.com/images/kKS3O_7EJOjxAOyuiFS5Q.png" alt="top bg" />
+            <h1>About</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+          </div>
+          <div className="about-top-img">
+            <img src="https://figmage.com/images/kqyZf935P1GjyNEoVfrSO.png" alt="" />
+          </div>
+          <div className="about-top-decor1">
+            <img src="https://figmage.com/images/ovb7rHHALxduHkL8j7-ON.png" alt="" />
+          </div>
+        </div>
+
+        {/* middle section */}
+        <div className="atext-container">
+          <h2>We make sure each customers blah blah blah</h2>
+          <div className="small-text">
+            <div className="leftside-text">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
+            </div>
+            <div className="rightside-text">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
+            </div>
+          </div>
+        </div>
+
+        {/* video section */}
+
+        <div className="video-info">
+          <div className="vid-container">
+            <div className="vid">
+              <iframe
+                width="100%"
+                height="350"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <div className="vid-title">
+              <p>PowerMed</p>
+            </div>
+          </div>
+          <div className="vid-text">
+            <h2>We  blah blah blah blah blah blah blah</h2>
+            <div className="dvd-txt">
+              <div className="abtDivider"></div>
+              <div className="txt-side">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt  </p>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
